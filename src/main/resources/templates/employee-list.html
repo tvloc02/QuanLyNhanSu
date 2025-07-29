@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoffeeHR - Quản Lý Nhân Sự</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            padding: 10px 20px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .logo i {
+            background: rgba(255,255,255,0.2);
+            padding: 8px;
+            border-radius: 8px;
+            margin-right: 10px;
+        }
+
+
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: white;
+        }
+
+        .header-actions i {
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+
+        .header-actions i:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        /* Main Container */
+        .container {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: 20px;
+            padding: 20px;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-radius: 15px;
+            padding: 25px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+
+        .user-profile {
+            text-align: center;
+            padding: 0 25px 25px;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 25px;
+        }
+
+        .user-profile img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            border: 3px solid #ff6b35;
+        }
+
+        .user-profile h3 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 18px;
+        }
+
+        .user-profile p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .menu-item {
+            padding: 12px 25px;
+            display: flex;
+            align-items: center;
+            color: #666;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background: linear-gradient(90deg, rgba(255,107,53,0.1) 0%, transparent 100%);
+            color: #ff6b35;
+            border-left-color: #ff6b35;
+        }
+
+        .menu-item i {
+            width: 20px;
+            margin-right: 15px;
+            font-size: 16px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .content-title {
+            color: #ff6b35;
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filter-tab {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: white;
+            color: #666;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .filter-tab.active, .filter-tab:hover {
+            background: #ff6b35;
+            color: white;
+            border-color: #ff6b35;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .employee-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .employee-table thead {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .employee-table th {
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .employee-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+
+        .employee-table tbody tr {
+            transition: all 0.3s;
+        }
+
+        .employee-table tbody tr:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .employee-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .employee-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .employee-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .employee-id {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .specialization-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .action-btn {
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .action-btn:hover {
+            background: #e55a30;
+            transform: translateY(-1px);
+            color: white;
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #545b62;
+        }
+
+        .action-btn.success {
+            background: #28a745;
+        }
+
+        .action-btn.success:hover {
+            background: #218838;
+        }
+
+        /* Add button */
+        .add-employee-btn {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-employee-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,107,53,0.4);
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                padding: 10px;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .main-content {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .employee-table tbody tr {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .employee-table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+        .employee-table tbody tr:nth-child(2) { animation-delay: 0.2s; }
+        .employee-table tbody tr:nth-child(3) { animation-delay: 0.3s; }
+        .employee-table tbody tr:nth-child(4) { animation-delay: 0.4s; }
+        .employee-table tbody tr:nth-child(5) { animation-delay: 0.5s; }
+    </style>
+</head>
+<body>
+<!-- Header -->
+<header class="header">
+    <div class="header-content">
+        <div class="logo">
+            <i class="fas fa-coffee"></i>
+            CoffeeHR
+        </div>
+
+        <div class="header-actions">
+            <i class="fas fa-bell"></i>
+            <i class="fas fa-envelope"></i>
+            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"
+                 alt="User" class="user-avatar">
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="user-profile">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
+                 alt="Định Phạm Diệu Tin">
+            <h3>Định Phạm Diệu Tin</h3>
+            <p>Chuyên viên Hành Chính Nhân Sự</p>
+        </div>
+
+        <nav>
+            <a href="/" class="menu-item">
+                <i class="fas fa-home"></i>
+                Trang chủ
+            </a>
+            <a href="/employees" class="menu-item active">
+                <i class="fas fa-users"></i>
+                Danh sách nhân viên
+            </a>
+            <a href="/employees/new" class="menu-item">
+                <i class="fas fa-user-plus"></i>
+                Thêm nhân viên
+            </a>
+            <a href="/salaries" class="menu-item">
+                <i class="fas fa-money-bill-wave"></i>
+                Bảng lương
+            </a>
+            <a href="/reports" class="menu-item">
+                <i class="fas fa-chart-bar"></i>
+                Báo cáo
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-cog"></i>
+                Cài đặt
+            </a>
+        </nav>
+
+        <div style="text-align: center; margin-top: 30px; padding: 0 25px;">
+            <svg width="150" height="120" viewBox="0 0 200 160" style="opacity: 0.6;">
+                <defs>
+                    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <rect x="20" y="80" width="120" height="8" rx="4" fill="#333"/>
+                <rect x="30" y="40" width="100" height="65" rx="5" fill="url(#grad1)"/>
+                <rect x="35" y="45" width="90" height="50" rx="2" fill="#fff"/>
+                <circle cx="160" cy="60" r="15" fill="#ff6b35"/>
+                <rect x="150" y="75" width="20" height="25" rx="3" fill="#ff6b35"/>
+                <rect x="145" y="85" width="8" height="20" rx="2" fill="#ff6b35"/>
+                <rect x="167" y="85" width="8" height="20" rx="2" fill="#ff6b35"/>
+                <rect x="40" y="70" width="4" height="15" fill="#667eea"/>
+                <rect x="50" y="60" width="4" height="25" fill="#764ba2"/>
+                <rect x="60" y="65" width="4" height="20" fill="#ff6b35"/>
+                <rect x="70" y="55" width="4" height="30" fill="#667eea"/>
+            </svg>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-header">
+            <h1 class="content-title">Employee Management</h1>
+            <a href="/employees/new" class="add-employee-btn">
+                <i class="fas fa-plus"></i>
+                Thêm Nhân Viên
+            </a>
+        </div>
+
+        <!-- Thông báo thành công -->
+        <div th:if="${successMessage}" class="alert alert-success" style="margin-bottom: 20px; padding: 15px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; color: #155724;">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${successMessage}"></span>
+        </div>
+
+        <div class="filter-tabs">
+            <a href="/employees/new" class="filter-tab">➕ Thêm nhân viên</a>
+            <a href="/salaries" class="filter-tab">💰 Bảng lương</a>
+            <a href="/reports" class="filter-tab">📊 Báo cáo</a>
+        </div>
+
+        <div class="table-container">
+            <table class="employee-table">
+                <thead>
+                <tr>
+                    <th>Thông tin nhân viên</th>
+                    <th>Phòng ban</th>
+                    <th>Chức vụ</th>
+                    <th>Lương cơ bản</th>
+                    <th>Ngày vào làm</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="employee, iterStat : ${employees}">
+                    <td>
+                        <div class="employee-info">
+                            <img th:src="@{https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100&h=100&fit=center&q=60}"
+                                 th:alt="${employee.firstName != null ? employee.firstName : ''} + ' ' + ${employee.lastName != null ? employee.lastName : ''}"
+                                 class="employee-avatar">
+                            <div>
+                                <div class="employee-name" th:text="${employee.firstName != null ? employee.firstName : ''} + ' ' + ${employee.lastName != null ? employee.lastName : ''}">Trần Tuấn Linh</div>
+                                <div class="employee-id" th:text="${employee.email != null ? employee.email : ''}">tuanlinh9812@gmail.com</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="specialization-badge" th:text="${employee.department != null ? employee.department.name : ''}">IT</span></td>
+                    <td th:text="${employee.position != null ? employee.position : ''}">Developer</td>
+                    <td style="color: #28a745; font-weight: 600;" th:text="${employee.salary != null ? #numbers.formatCurrency(employee.salary) : ''}">15,000,000 ₫</td>
+                    <td th:text="${employee.hireDate != null ? #temporals.format(employee.hireDate, 'dd/MM/yyyy') : ''}">09/10/2020</td>
+                    <td><span class="status-badge status-active">Đang làm việc</span></td>
+                    <td>
+                        <a th:href="@{/employees/{id}(id=${employee.id})}" class="action-btn">👁️ Xem</a>
+                        <a th:href="@{/employees/edit/{id}(id=${employee.id})}" class="action-btn success">✏️ Sửa</a>
+                        <a th:href="@{/employees/delete/{id}(id=${employee.id})}" class="action-btn danger" onclick="return confirm('Bạn có chắc chắn muốn xóa nhân viên này?');">🗑️ Xóa</a>
+                    </td>
+                </tr>
+
+                <!-- Empty state -->
+                <tr th:if="${#lists.isEmpty(employees)}">
+                    <td colspan="7" style="text-align: center; padding: 50px; color: #666;">
+                        <i class="fas fa-users" style="font-size: 3em; margin-bottom: 20px; opacity: 0.3;"></i>
+                        <p>Chưa có nhân viên nào trong hệ thống</p>
+                        <a href="/employees/new" class="add-employee-btn" style="margin-top: 20px;">
+                            <i class="fas fa-plus"></i>
+                            Thêm nhân viên đầu tiên
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<script>
+
+
+    // Delete confirmation
+    function confirmDelete(employeeId) {
+        if (confirm('Bạn có chắc chắn muốn xóa nhân viên này?')) {
+            fetch(`/employees/${employeeId}`, {
+                method: 'DELETE'
+            }).then(() => {
+                location.reload();
+            });
+        }
+    }
+
+    // Filter tabs functionality
+    const filterTabs = document.querySelectorAll('.filter-tab');
+    filterTabs.forEach(tab => {
+        tab.addEventListener('click', function(e) {
+            if (this.getAttribute('href') === '#') {
+                e.preventDefault();
+            }
+        });
+    });
+
+    // Auto-hide success message
+    document.addEventListener('DOMContentLoaded', function() {
+        const successAlert = document.querySelector('.alert-success');
+        if (successAlert) {
+            setTimeout(function() {
+                successAlert.style.transition = 'opacity 0.5s';
+                successAlert.style.opacity = '0';
+                setTimeout(function() {
+                    successAlert.remove();
+                }, 500);
+            }, 5000);
+        }
+    });
+</script>
+</body>
+</html>

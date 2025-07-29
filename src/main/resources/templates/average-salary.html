@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lương Trung Bình Theo Phòng Ban</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid #e9ecef;
+        }
+
+        .form-section h2 {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            box-shadow: 0 10px 20px rgba(108, 117, 125, 0.3);
+        }
+
+        .results-section {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-top: 30px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .results-section h2 {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .unit {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .employee-list {
+            margin-top: 30px;
+        }
+
+        .employee-list h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .employee-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .employee-table th,
+        .employee-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .employee-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .employee-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .yearly-averages {
+            margin-top: 30px;
+        }
+
+        .yearly-averages h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .yearly-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .year-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+
+        .year-card .year {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+
+        .year-card .average {
+            font-size: 1.1rem;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #764ba2;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .yearly-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Lương Trung Bình Theo Phòng Ban</h1>
+            <p>Tính toán và phân tích lương trung bình theo phòng ban</p>
+        </div>
+
+        <div class="content">
+            <a href="/salaries" class="back-link">← Quay lại Bảng Lương</a>
+
+            <!-- Form chọn phòng ban và thời gian -->
+            <div class="form-section">
+                <h2>📊 Chọn Thông Tin Tính Toán</h2>
+                <form th:action="@{/salaries/average/calculate}" method="post">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="departmentId">Phòng Ban:</label>
+                            <select id="departmentId" name="departmentId" class="form-control" required>
+                                <option value="">-- Chọn phòng ban --</option>
+                                <option th:each="dept : ${departments}" 
+                                        th:value="${dept.id}" 
+                                        th:text="${dept.name}"
+                                        th:selected="${department != null and department.id == dept.id}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="year">Năm:</label>
+                            <select id="year" name="year" class="form-control" required>
+                                <option value="">-- Chọn năm --</option>
+                                <option th:each="year : ${#numbers.sequence(2020, 2030)}" 
+                                        th:value="${year}" 
+                                        th:text="${year}"
+                                        th:selected="${selectedYear != null and selectedYear == year}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="month">Tháng:</label>
+                            <select id="month" name="month" class="form-control" required>
+                                <option value="">-- Chọn tháng --</option>
+                                <option th:each="month : ${#numbers.sequence(1, 12)}" 
+                                        th:value="${month}" 
+                                        th:text="${month}"
+                                        th:selected="${selectedMonth != null and selectedMonth == month}">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn">🔍 Tính Toán Lương Trung Bình</button>
+                </form>
+            </div>
+
+            <!-- Hiển thị lỗi -->
+            <div th:if="${error}" class="error-message">
+                <strong>⚠️ Lỗi:</strong> <span th:text="${error}"></span>
+            </div>
+
+            <!-- Hiển thị kết quả -->
+            <div th:if="${department != null and averageSalary != null}" class="results-section">
+                <h2>📈 Kết Quả Tính Toán</h2>
+                
+                <!-- Thông tin phòng ban -->
+                <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="color: #1976d2; margin-bottom: 10px;">Phòng Ban: <span th:text="${department.name}"></span></h3>
+                    <p style="color: #424242; margin: 0;">Thời gian: Tháng <span th:text="${selectedMonth}"></span>/<span th:text="${selectedYear}"></span></p>
+                </div>
+
+                <!-- Thống kê tổng quan -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Số Nhân Viên</h3>
+                        <div class="value" th:text="${employeeCount}">0</div>
+                        <div class="unit">người</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Tổng Lương</h3>
+                        <div class="value" th:text="${#numbers.formatDecimal(totalSalary, 0, 'COMMA', 0, 'POINT')}">0</div>
+                        <div class="unit">VNĐ</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Lương Trung Bình</h3>
+                        <div class="value" th:text="${#numbers.formatDecimal(averageSalary, 0, 'COMMA', 0, 'POINT')}">0</div>
+                        <div class="unit">VNĐ/tháng</div>
+                    </div>
+                </div>
+
+                <!-- Danh sách nhân viên -->
+                <div class="employee-list" th:if="${!employeesInPeriod.isEmpty()}">
+                    <h3>👥 Danh Sách Nhân Viên Trong Kỳ</h3>
+                    <table class="employee-table">
+                        <thead>
+                            <tr>
+                                <th>Họ Tên</th>
+                                <th>Email</th>
+                                <th>Chức Vụ</th>
+                                <th>Ngày Vào Làm</th>
+                                <th>Lương (VNĐ)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="employee : ${employeesInPeriod}">
+                                <td th:text="${employee.fullName}">Tên nhân viên</td>
+                                <td th:text="${employee.email}">email@example.com</td>
+                                <td th:text="${employee.position != null ? employee.position : 'Chưa cập nhật'}">Chức vụ</td>
+                                <td th:text="${#temporals.format(employee.hireDate, 'dd/MM/yyyy')}">01/01/2024</td>
+                                <td th:text="${#numbers.formatDecimal(employee.salary, 0, 'COMMA', 0, 'POINT')}">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Lương trung bình theo năm -->
+                <div class="yearly-averages" th:if="${!yearlyAverages.isEmpty()}">
+                    <h3>📊 Lương Trung Bình Theo Năm</h3>
+                    <div class="yearly-grid">
+                        <div class="year-card" th:each="entry : ${yearlyAverages}">
+                            <div class="year" th:text="${entry.key}">2024</div>
+                            <div class="average" th:text="${#numbers.formatDecimal(entry.value, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Thêm hiệu ứng loading khi submit form
+        document.querySelector('form').addEventListener('submit', function() {
+            const btn = this.querySelector('button[type="submit"]');
+            btn.textContent = '🔄 Đang tính toán...';
+            btn.disabled = true;
+        });
+
+        // Thêm hiệu ứng hover cho các card
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.stat-card, .year-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                    this.style.transition = 'transform 0.3s ease';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoffeeHR - Employee Form</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            padding: 10px 20px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .logo i {
+            background: rgba(255,255,255,0.2);
+            padding: 8px;
+            border-radius: 8px;
+            margin-right: 10px;
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 20px;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            background: rgba(255,255,255,0.95);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: white;
+        }
+
+        .header-actions i {
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+
+        .header-actions i:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        /* Main Container */
+        .container {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: 20px;
+            padding: 20px;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-radius: 15px;
+            padding: 25px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+
+        .user-profile {
+            text-align: center;
+            padding: 0 25px 25px;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 25px;
+        }
+
+        .user-profile img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            border: 3px solid #ff6b35;
+        }
+
+        .user-profile h3 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 18px;
+        }
+
+        .user-profile p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .menu-item {
+            padding: 12px 25px;
+            display: flex;
+            align-items: center;
+            color: #666;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background: linear-gradient(90deg, rgba(255,107,53,0.1) 0%, transparent 100%);
+            color: #ff6b35;
+            border-left-color: #ff6b35;
+        }
+
+        .menu-item i {
+            width: 20px;
+            margin-right: 15px;
+            font-size: 16px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            min-height: 600px;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .content-title {
+            color: #ff6b35;
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filter-tab {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: white;
+            color: #666;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .filter-tab.active, .filter-tab:hover {
+            background: #ff6b35;
+            color: white;
+            border-color: #ff6b35;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .employee-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .employee-table thead {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .employee-table th {
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .employee-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+
+        .employee-table tbody tr {
+            transition: all 0.3s;
+        }
+
+        .employee-table tbody tr:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .employee-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .employee-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .employee-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .employee-id {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .specialization-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .action-btn {
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .action-btn:hover {
+            background: #e55a30;
+            transform: translateY(-1px);
+            color: white;
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #545b62;
+        }
+
+        .action-btn.success {
+            background: #28a745;
+        }
+
+        .action-btn.success:hover {
+            background: #218838;
+        }
+
+        /* Add button */
+        .add-employee-btn {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 22px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 8px rgba(255,107,53,0.08);
+        }
+
+        .add-employee-btn:hover {
+            background: #e55a30;
+            color: #fff;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                padding: 10px;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .search-bar {
+                order: 3;
+                max-width: none;
+                margin: 0;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .main-content {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .employee-table tbody tr {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .employee-table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+        .employee-table tbody tr:nth-child(2) { animation-delay: 0.2s; }
+        .employee-table tbody tr:nth-child(3) { animation-delay: 0.3s; }
+        .employee-table tbody tr:nth-child(4) { animation-delay: 0.4s; }
+        .employee-table tbody tr:nth-child(5) { animation-delay: 0.5s; }
+
+    /*                                                  */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px 28px;
+            margin-bottom: 24px;
+            min-height: 400px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            margin-bottom: 7px;
+            color: #333;
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .required::after {
+            content: " *";
+            color: #ff6b35;
+            margin-left: 2px;
+        }
+
+        .form-input,
+        .form-select {
+            padding: 11px 15px;
+            border: 1.5px solid #e0e7ff;
+            border-radius: 10px;
+            font-size: 15px;
+            background: #f8fafc;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            border-color: #ff6b35;
+            outline: none;
+            box-shadow: 0 0 0 2px #ffe5d0;
+        }
+
+        .form-select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            min-height: 45px;
+            display: block !important;
+        }
+
+        .invalid-feedback {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 3px;
+            font-style: italic;
+            min-height: 18px;
+        }
+
+        .form-actions {
+            margin-top: 30px;
+            display: flex !important;
+            gap: 18px;
+            justify-content: flex-start;
+            padding: 20px 0;
+            border-top: 1px solid #e0e7ff;
+            background: #fff;
+            position: relative;
+            z-index: 10;
+            min-height: 60px;
+        }
+
+        .btn {
+            display: inline-flex !important;
+            align-items: center;
+            gap: 7px;
+            padding: 11px 26px;
+            border: none;
+            border-radius: 22px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: none;
+            min-width: 100px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(255,107,53,0.10);
+        }
+
+        .btn-primary:hover {
+            background: #e55a30;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #333;
+            border: 1.5px solid #e0e7ff;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e7ff;
+        }
+
+        /* Alert styles */
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 16px;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+
+
+        /* Form styles */
+        form {
+            display: block !important;
+            min-height: 500px;
+        }
+        @media (max-width: 900px) {
+            .main-content {
+                padding: 18px 6vw;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Header -->
+<header class="header">
+    <div class="header-content">
+        <div class="logo">
+            <i class="fas fa-coffee"></i>
+            CoffeeHR
+        </div>
+
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Nhập nội dung tìm kiếm" id="searchInput">
+        </div>
+
+        <div class="header-actions">
+            <i class="fas fa-bell"></i>
+            <i class="fas fa-envelope"></i>
+            <i class="fas fa-cog"></i>
+            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"
+                 alt="User" class="user-avatar">
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="user-profile">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=center&q=60"
+                 alt="Admin">
+            <h3>HR Manager</h3>
+            <p>Quản lý nhân sự</p>
+        </div>
+
+        <nav>
+            <a href="/" class="menu-item">
+                <i class="fas fa-home"></i>
+                Trang chủ
+            </a>
+            <a href="/employees" class="menu-item">
+                <i class="fas fa-users"></i>
+                Danh sách nhân viên
+            </a>
+            <a href="/employees/new" class="menu-item active">
+                <i class="fas fa-user-plus"></i>
+                Thêm nhân viên
+            </a>
+            <a href="/salaries" class="menu-item">
+                <i class="fas fa-money-bill-wave"></i>
+                Bảng lương
+            </a>
+            <a href="/reports" class="menu-item">
+                <i class="fas fa-chart-bar"></i>
+                Báo cáo
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-cog"></i>
+                Cài đặt
+            </a>
+        </nav>
+
+        <div style="text-align: center; margin-top: 30px; padding: 0 25px;">
+            <svg width="150" height="120" viewBox="0 0 200 160" style="opacity: 0.6;">
+                <defs>
+                    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <rect x="20" y="80" width="120" height="8" rx="4" fill="#333"/>
+                <rect x="30" y="40" width="100" height="65" rx="5" fill="url(#grad1)"/>
+                <rect x="35" y="45" width="90" height="50" rx="2" fill="#fff"/>
+                <circle cx="160" cy="60" r="15" fill="#ff6b35"/>
+                <rect x="150" y="75" width="20" height="25" rx="3" fill="#ff6b35"/>
+                <rect x="145" y="85" width="8" height="20" rx="2" fill="#ff6b35"/>
+                <rect x="167" y="85" width="8" height="20" rx="2" fill="#ff6b35"/>
+                <rect x="40" y="70" width="4" height="15" fill="#667eea"/>
+                <rect x="50" y="60" width="4" height="25" fill="#764ba2"/>
+                <rect x="60" y="65" width="4" height="20" fill="#ff6b35"/>
+                <rect x="70" y="55" width="4" height="30" fill="#667eea"/>
+            </svg>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-header">
+            <h1 class="content-title">Thêm Nhân Viên Mới</h1>
+            <a href="/employees" class="add-employee-btn">
+                <i class="fas fa-arrow-left"></i>
+                Quay lại danh sách
+            </a>
+        </div>
+
+        <form th:action="@{/employees/save}" th:object="${employee}" method="post">
+            <!-- Hiển thị tổng hợp lỗi đầu form -->
+            <div th:if="${#fields.hasErrors()}" class="alert alert-danger">
+                <ul>
+                    <li th:each="err : ${#fields.errors()}" th:text="${err}"></li>
+                </ul>
+            </div>
+            
+            <!-- Hiển thị lỗi chung -->
+            <div th:if="${error}" class="alert alert-danger">
+                <strong>Lỗi:</strong> <span th:text="${error}"></span>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label required" for="firstName">Họ</label>
+                    <input type="text" th:field="*{firstName}" id="firstName" class="form-input" placeholder="Nguyễn" required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required" for="lastName">Tên</label>
+                    <input type="text" th:field="*{lastName}" id="lastName" class="form-input" placeholder="Văn A" required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="form-label required" for="email">Email</label>
+                    <input type="email" th:field="*{email}" id="email" class="form-input" placeholder="example@gmail.com" required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required" for="phone">Số điện thoại</label>
+                    <input type="text" th:field="*{phoneNumber}" id="phone" class="form-input" placeholder="0123456789" required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required" for="salary">Lương cơ bản</label>
+                    <input type="number" step="0.01" th:field="*{salary}" id="salary" class="form-input" placeholder="15000000" required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('salary')}" th:errors="*{salary}"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required" for="department">Phòng ban</label>
+                    <select name="department.id" id="department" class="form-select" required>
+                        <option value="">-- Chọn phòng ban --</option>
+                        <option th:each="dept : ${departments}"
+                                th:value="${dept.id}"
+                                th:text="${dept.name}"></option>
+                    </select>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('department')}" th:errors="*{department}"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required" for="hireDate">Ngày vào làm</label>
+                    <input type="date" th:field="*{hireDate}" id="hireDate" class="form-input" required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('hireDate')}" th:errors="*{hireDate}"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label required" for="status">Trạng thái</label>
+                    <select th:field="*{status}" id="status" class="form-select" required>
+                        <option value="">-- Chọn trạng thái --</option>
+                        <option value="ACTIVE">Đang làm việc</option>
+                        <option value="INACTIVE">Nghỉ việc</option>
+                        <option value="TERMINATED">Đã thôi việc</option>
+                    </select>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Lưu
+                </button>
+                <a href="/employees" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Hủy
+                </a>
+            </div>
+
+        </form>
+    </main>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Debug form elements
+        console.log('Form loaded successfully');
+        
+        const statusSelect = document.getElementById('status');
+        const saveButton = document.querySelector('button[type="submit"]');
+        const form = document.querySelector('form');
+        
+        console.log('Status select:', statusSelect);
+        console.log('Save button:', saveButton);
+        console.log('Form:', form);
+        
+        if (statusSelect) {
+            console.log('Status options:', statusSelect.options.length);
+            for (let i = 0; i < statusSelect.options.length; i++) {
+                console.log('Option', i, ':', statusSelect.options[i].text, '=', statusSelect.options[i].value);
+            }
+        }
+        
+        if (saveButton) {
+            console.log('Save button text:', saveButton.textContent);
+            console.log('Save button visible:', saveButton.offsetParent !== null);
+        }
+
+        const searchInput = document.getElementById('searchInput');
+        const rows = document.querySelectorAll('.employee-table tbody tr');
+
+        if (searchInput && rows.length > 0) {
+            searchInput.addEventListener('input', function () {
+                const searchTerm = this.value.toLowerCase();
+                rows.forEach(row => {
+                    const name = row.querySelector('.employee-name')?.textContent.toLowerCase() || '';
+                    const email = row.querySelector('.employee-id')?.textContent.toLowerCase() || '';
+                    const department = row.querySelector('.specialization-badge')?.textContent.toLowerCase() || '';
+
+                    row.style.display = name.includes(searchTerm) || email.includes(searchTerm) || department.includes(searchTerm) ? '' : 'none';
+                });
+            });
+        }
+
+        // Confirm delete
+        window.confirmDelete = function (employeeId) {
+            if (confirm('Bạn có chắc chắn muốn xóa nhân viên này?')) {
+                fetch(`/employees/${employeeId}`, {
+                    method: 'DELETE'
+                }).then(() => location.reload());
+            }
+        };
+
+        // Filter tab prevent default
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', function (e) {
+                if (this.getAttribute('href') === '#') {
+                    e.preventDefault();
+                }
+            });
+        });
+        
+        // Form validation
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                console.log('Form submitted');
+                const requiredFields = form.querySelectorAll('[required]');
+                let isValid = true;
+                
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.style.borderColor = '#e74c3c';
+                        console.log('Missing required field:', field.name);
+                    } else {
+                        field.style.borderColor = '#e0e7ff';
+                    }
+                });
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    alert('Vui lòng điền đầy đủ thông tin bắt buộc');
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>

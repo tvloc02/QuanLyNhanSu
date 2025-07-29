@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết nhân viên</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; }
+        .container { max-width: 600px; margin: 40px auto; background: white; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 32px; }
+        h2 { color: #ff6b35; margin-bottom: 24px; }
+        .info-row { display: flex; margin-bottom: 16px; }
+        .info-label { width: 160px; color: #666; font-weight: 600; }
+        .info-value { flex: 1; color: #333; }
+        .back-btn { display: inline-block; margin-top: 24px; background: #ff6b35; color: white; padding: 10px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; }
+        .back-btn:hover { background: #f7931e; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Chi tiết nhân viên</h2>
+    <div class="info-row">
+        <div class="info-label">Họ tên:</div>
+        <div class="info-value" th:text="${employee.firstName + ' ' + employee.lastName}"></div>
+    </div>
+    <div class="info-row">
+        <div class="info-label">Email:</div>
+        <div class="info-value" th:text="${employee.email}"></div>
+    </div>
+    <div class="info-row">
+        <div class="info-label">Phòng ban:</div>
+        <div class="info-value" th:text="${employee.department != null ? employee.department.name : ''}"></div>
+    </div>
+    <div class="info-row">
+        <div class="info-label">Chức vụ:</div>
+        <div class="info-value" th:text="${employee.position}"></div>
+    </div>
+    <div class="info-row">
+        <div class="info-label">Lương cơ bản:</div>
+        <div class="info-value" th:text="${#numbers.formatCurrency(employee.salary)}"></div>
+    </div>
+    <div class="info-row">
+        <div class="info-label">Ngày vào làm:</div>
+        <div class="info-value" th:text="${#temporals.format(employee.hireDate, 'dd/MM/yyyy')}"></div>
+    </div>
+    <div class="info-row">
+        <div class="info-label">Trạng thái:</div>
+        <div class="info-value" th:text="${employee.status}"></div>
+    </div>
+    <a th:href="@{/employees}" class="back-btn">&larr; Quay lại danh sách</a>
+</div>
+</body>
+</html> 
