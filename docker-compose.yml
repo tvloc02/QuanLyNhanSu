@@ -15,8 +15,7 @@ services:
       - monitoring
       
   web-app:
-    # SỬA: Đổi image name để khớp với Jenkinsfile
-    image: tvloc02/web-sellbook:1.0.3  # Thay vì tvloc02/web-app:1.0.3
+    image: tvloc02/web-app:1.0.3
     container_name: web-app
     ports:
       - "8082:8082"
