@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         APP_NAME = "web-app"
-        DEPLOY_DIR = "/opt/webapp"
+        DEPLOY_DIR = "C:\\opt\\webapp"  // Điều chỉnh đường dẫn cho Windows
     }
     tools {
         maven 'Maven-3.9.9'
@@ -20,9 +20,9 @@ pipeline {
             steps {
                 echo '==> Running SonarQube analysis...'
                 withSonarQubeEnv('SonarQube') {
-                    sh '''
-                        mvn clean verify sonar:sonar \
-                        -Dsonar.projectKey=web-app \
+                    bat '''
+                        mvn clean verify sonar:sonar ^
+                        -Dsonar.projectKey=web-app ^
                         -Dsonar.projectName="HR Management System"
                     '''
                 }
@@ -41,7 +41,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo '==> Building application...'
-                sh 'mvn clean package -DskipTests'
+                bat 'mvn clean package -DskipTests'
             }
         }
 
@@ -51,35 +51,35 @@ pipeline {
                 script {
                     try {
                         withCredentials([usernamePassword(credentialsId: 'server-ssh', passwordVariable: 'SSH_PASSWORD', usernameVariable: 'SSH_USERNAME')]) {
-                            sh '''
+                            bat '''
                                 echo "Connecting to production server 103.226.248.221..."
-                                sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_USERNAME@103.226.248.221 "
+                                sshpass -p "%SSH_PASSWORD%" ssh -o StrictHostKeyChecking=no %SSH_USERNAME%@103.226.248.221 "
                                     echo 'Connected to production server successfully';
 
                                     # Create app directory
-                                    mkdir -p /opt/webapp;
-                                    mkdir -p /opt/tomcat/webapps;
+                                    mkdir C:\\opt\\webapp || echo Directory already exists;
+                                    mkdir C:\\opt\\tomcat\\webapps || echo Directory already exists;
 
                                     # Deploy WAR file to Tomcat (if using WAR)
-                                    if [ -d /opt/tomcat ]; then
-                                        echo 'Copying WAR to Tomcat webapps...';
-                                        scp target/*.war $SSH_USERNAME@103.226.248.221:/opt/tomcat/webapps/;
-                                        echo 'Restarting Tomcat...';
-                                        /opt/tomcat/bin/shutdown.sh || true;
-                                        /opt/tomcat/bin/startup.sh;
-                                    fi;
+                                    if exist C:\\opt\\tomcat (
+                                        echo Copying WAR to Tomcat webapps...
+                                        pscp target\\*.war %SSH_USERNAME%@103.226.248.221:C:\\opt\\tomcat\\webapps\\
+                                        echo Restarting Tomcat...
+                                        C:\\opt\\tomcat\\bin\\shutdown.bat || echo Shutdown failed;
+                                        C:\\opt\\tomcat\\bin\\startup.bat
+                                    )
 
                                     # Deploy JAR file (if using Spring Boot)
-                                    if [ -f target/*.jar ]; then
-                                        echo 'Copying JAR to app directory...';
-                                        scp target/*.jar $SSH_USERNAME@103.226.248.221:/opt/webapp/;
-                                        echo 'Stopping existing JAR process...';
-                                        pkill -f 'java -jar' || true;
-                                        echo 'Starting new JAR...';
-                                        nohup java -jar /opt/webapp/*.jar &>/opt/webapp/app.log &
-                                    fi;
+                                    if exist target\\*.jar (
+                                        echo Copying JAR to app directory...
+                                        pscp target\\*.jar %SSH_USERNAME%@103.226.248.221:C:\\opt\\webapp\\
+                                        echo Stopping existing JAR process...
+                                        taskkill /IM java.exe /F || echo No Java process to kill;
+                                        echo Starting new JAR...
+                                        plink %SSH_USERNAME%@103.226.248.221 -pw %SSH_PASSWORD% "cd C:\\opt\\webapp && java -jar *.jar > app.log 2>&1"
+                                    )
 
-                                    echo 'Production deployment completed successfully';
+                                    echo Production deployment completed successfully
                                 "
                             '''
                         }
@@ -96,9 +96,9 @@ pipeline {
         stage('Health Check') {
             steps {
                 echo '==> Running health check...'
-                sh '''
-                    echo "=== Health Check Results ==="
-                    curl -f http://103.226.248.221:8080/${APP_NAME}/actuator/health || echo "Application not responding"
+                bat '''
+                    echo === Health Check Results ===
+                    curl -f http://103.226.248.221:8080/%APP_NAME%/actuator/health || echo Application not responding
                 '''
             }
         }
